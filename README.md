@@ -12,11 +12,6 @@ AI SaaS project targeting Indonesian market (2026). Part of long-term business s
 
 - **Deployment:** https://clever-pony-efe026.netlify.app/ (Landing Page)
 
-## Related Projects
-
-- **IDN Times Poetry** → Separated to `life/projects/idntimes-poetry/`
-- **Main Workspace:** `/home/ubuntu/.openclaw/workspace/`
-
 ## Getting Started
 
 ```bash
