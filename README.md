@@ -1,16 +1,25 @@
-# Future Project - AI SaaS Trend 2026
+# Radiant Projects
 
-## Overview
+AI-powered projects for Indonesian market automation.
 
-AI SaaS project targeting Indonesian market (2026). Part of long-term business strategy.
+## Projects
 
-## Project Status
+### Narralink
+- **URL:** https://radiant-projects.netlify.app/narralink
+- **Purpose:** Convert links to natural social media posts
+- **Tech:** Next.js + Netlify Functions + Groq API
+- **Status:** ✅ Live
 
-🚧 Setup in progress
+### IDN Times Poetry
+- **URL:** https://radiant-projects.netlify.app/idntimes-poetry
+- **Purpose:** Full poetry automation with scheduling dashboard
+- **Tech:** Playwright + Groq API + Pexels API
+- **Status:** 🔧 In Development
 
 ## Quick Links
 
-- **Deployment:** https://clever-pony-efe026.netlify.app/ (Landing Page)
+- **Landing Page:** https://radiant-projects.netlify.app/
+- **GitHub:** https://github.com/R-Damanhuri/radiant-projects
 
 ## Getting Started
 
@@ -20,10 +29,13 @@ npm install
 npm run dev
 ```
 
-## Deployment
+## Tech Stack
 
-Netlify auto-deploys from this repository.
+- Next.js 15 + React 19
+- Tailwind CSS v4
+- Netlify Functions
+- Groq API (llama-3.3-70b-versatileLast Updated:** )
 
 ---
 
-**Last Updated:** 2026-02-05
+**2026-02-06

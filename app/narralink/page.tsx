@@ -57,11 +57,14 @@ export default function Shopee2Tweet() {
       <header className="bg-gray-800 border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold text-purple-400">
-            🚀 Future Project
+            🚀 Radiant Projects
           </Link>
           <nav className="flex gap-4">
-            <Link href="/shopee2tweet" className="text-purple-400">
-              Shopee2Tweet
+            <Link href="/narralink" className="text-purple-400">
+              Narralink
+            </Link>
+            <Link href="/idntimes-poetry" className="hover:text-purple-400">
+              IDN Times Poetry
             </Link>
           </nav>
         </div>
