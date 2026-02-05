@@ -13,9 +13,9 @@
     "react-dom": "19.0.0"
   },
   "devDependencies": {
+    "@netlify/functions": "^2",
     "@tailwindcss/postcss": "^4",
     "autoprefixer": "^10",
-    "eslint": "^9",
     "postcss": "^8",
     "tailwindcss": "^4",
     "@types/node": "20",

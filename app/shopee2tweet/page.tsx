@@ -24,7 +24,7 @@ export default function Shopee2Tweet() {
     setResult(null);
 
     try {
-      const res = await fetch('/api/shopee2tweet', {
+      const res = await fetch('/.netlify/functions/shopee2tweet', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
