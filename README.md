@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Future Project - Poetry Automation for IDN Times
+
+## Overview
+Automated poetry content generation and publishing system for IDN Times writers. This project includes a landing page and a powerful poetry automation dashboard.
+
+## Project Structure
+
+```
+future-project/
+├── README.md              # This file
+├── app/                   # Landing page (Next.js)
+├── dashboard/             # Poetry automation dashboard (Next.js)
+├── agents/                # OpenClaw agent configurations
+├── tools/                 # API integration documentation
+├── automation/            # Playwright publish scripts
+├── .env.example           # Environment variables template
+└── test.js                # Test script
+```
+
+## Landing Page
+- **Location:** `/app/page.tsx`
+- **URL:** https://clever-pony-efe026.netlify.app/
+- **Status:** ✅ Live
+
+## Poetry Automation Dashboard
+- **Location:** `/dashboard/`
+- **Purpose:** Generate and publish poetry to IDN Times
+- **Status:** 🚧 Setup in progress
+
+## Poetry Automation Workflow
+
+```
+1. Scrape trending poetry topics from IDN Times
+2. Generate original poetry using AI (Groq/OpenRouter)
+3. Fetch relevant images from Pexels API
+4. Store in Google Sheets for tracking
+5. Dashboard review with one-click publish
+6. Browser automation posts to IDN Times
+```
+
+## Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Landing Page | Next.js + Tailwind CSS |
+| Dashboard | Next.js |
+| AI Agents | OpenClaw |
+| Content Generation | Groq / OpenRouter |
+| Images | Pexels API |
+| Browser Automation | Playwright |
+| Deployment | Netlify |
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Setup Environment
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env
+# Fill in your API keys
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install Dependencies (for dashboard)
+```bash
+cd dashboard
+npm install
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Test Poetry Generation
+```bash
+node test.js
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Configure API Keys
 
-## Learn More
+Required:
+- `GROQ_API_KEY` - For AI poetry generation
+- `PEXELS_API_KEY` - For image sourcing
+- `IDN_TIMES_EMAIL` - Account for publishing
+- `IDN_TIMES_PASSWORD` - Account password
 
-To learn more about Next.js, take a look at the following resources:
+Optional:
+- `OPENROUTER_API_KEY` - Alternative AI provider
+- `GOOGLE_SHEETS_ID` - For data tracking
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Files Description
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| File/Folder | Purpose |
+|-------------|---------|
+| `agents/poetry-generator.md` | OpenClaw agent config for poetry generation |
+| `tools/README.md` | API integration documentation |
+| `automation/publish.js` | Playwright script for IDN Times publishing |
+| `dashboard/app/page.tsx` | Dashboard UI for review & publish |
+| `app/page.tsx` | Landing page (already deployed) |
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Landing Page
+- Already deployed to Netlify
+- URL: https://clever-pony-efe026.netlify.app/
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Dashboard
+- Deploy from `/dashboard` folder
+- Or deploy separately to Vercel/Netlify
+
+## Status
+
+| Component | Status |
+|-----------|--------|
+| Landing Page | ✅ Live |
+| Project Structure | ✅ Done |
+| Dashboard UI | ✅ Basic Ready |
+| Publish Automation | ✅ Script Ready |
+| API Integrations | 📝 Need API Keys |
+
+## Next Steps
+
+1. Get API keys (Groq, Pexels)
+2. Configure `.env` file
+3. Test poetry generation
+4. Test publish automation
+5. Go live!
+
+## License
+
+MIT
