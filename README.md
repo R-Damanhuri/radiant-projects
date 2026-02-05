@@ -24,7 +24,7 @@ AI-powered projects for Indonesian market automation.
 ## Getting Started
 
 ```bash
-cd future-project
+cd radiant-projects
 npm install
 npm run dev
 ```
