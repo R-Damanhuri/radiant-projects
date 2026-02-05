@@ -1,129 +1,97 @@
 # Poetry Automation Tools
 
-## 1. IDN Times Scraper
+Automated poetry generation and image sourcing for IDN Times.
 
-### Purpose
-Scrape trending poetry topics from IDN Times.
+## Overview
 
-### Implementation
-```javascript
-// Pseudo-code
-const scrapeTrendingTopics = async () => {
-  const response = await fetch('https://www.idntimes.com/poetry');
-  const html = parse(response);
-  // Extract trending topics
-  return topics;
-}
+This tools directory contains the automation system for:
+1. Scraping trending poetry from IDN Times
+2. Analyzing examples to learn patterns
+3. Generating new poems based on comprehensive learning
+4. Sourcing relevant images from Pexels
+
+## Files
+
+### Main Workflow
+- **`poetry-workflow.js`** - Complete workflow orchestration
+
+### Scraper  
+- **`scraper-fiction.js`** - Scrapes "Trending in Poetry" section from IDN Times
+
+## Usage
+
+### Run Complete Workflow
+```bash
+node poetry-workflow.js
 ```
 
-### Notes
-- IDN Times poetry section: `https://www.idntimes.com/poetry`
-- Look for trending/popular articles
-- Extract themes and keywords
+This will:
+1. Scrape 5 trending poetry topics from IDN Times
+2. Analyze all aspects (length, metaphors, structure, tone, themes)
+3. Generate 3 new poems based on learning
+4. Extract keywords from each poem
+5. Search Pexels for relevant images
 
----
-
-## 2. Poetry Generator (Groq/OpenRouter)
-
-### Purpose
-Generate original Indonesian poetry based on topics.
-
-### Implementation
-```javascript
-const generatePoetry = async (topic, apiKey) => {
-  const prompt = `Buat 3 puisi Indonesia tentang "${topic}". 
-  Setiap puisi 4-8 baris. 
-  Sertakan title dan 3 keywords untuk gambar.
-  Format JSON.`;
-  
-  const response = await fetch('https://api.groq.com/v1/chat/completions', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model: 'llama3-8b-8192',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7
-    })
-  });
-  
-  return JSON.parse(response.choices[0].message.content);
-}
+### Run Scraper Only
+```bash
+node scraper-fiction.js
 ```
 
-### Models
-- Groq: `llama3-8b-8192` (fast, cheap)
-- OpenRouter: `anthropic/claude-3-haiku`
+## Workflow Details
 
----
+### Step 1: Scrape Examples
+- Target: `https://www.idntimes.com/fiction/poetry`
+- Section: "Trending in Poetry" (identified by `data-cy="ds-title"`)
+- Extracts: Titles, URLs from article cards
 
-## 3. Pexels Image Search
+### Step 2: Comprehensive Analysis
+Analyzes all aspects of scraped examples:
+- **Length**: Baris rata-rata, pola panjang
+- **Metaphors & Imagery**: Jenis metafora, gambaran visual
+- **Vocabulary**: Tingkat kesulitan, gaya bahasa
+- **Structure**: Rhyme scheme, alur, repetisi
+- **Themes**: Cinta, kehilangan, alam, kehidupan
+- **Tones**: Melankolis, tenang, reflektif
+- **Patterns**: Unique IDN Times style
 
-### Purpose
-Find relevant images for poetry.
+### Step 3: Generate Poems
+Creates 3 new poems based on comprehensive learning, matching:
+- Style (metafora, personifikasi, kontradiksi)
+- Length (4-8 baris)
+- Tone (melankolis, reflektif)
+- Themes (kehilangan, alam, kehidupan)
 
-### Implementation
-```javascript
-const searchPexels = async (keywords, apiKey) => {
-  const query = keywords.join(' ');
-  const response = await fetch(
-    `https://api.pexels.com/v1/search?query=${query}&per_page=3`,
-    { headers: { 'Authorization': apiKey } }
-  );
-  return response.photos;
-}
+### Step 4: Extract Keywords
+For each poem, extracts representative keywords for image search.
+
+### Step 5: Search Pexels
+Searches Pexels API with keywords, returns 3 images per poem.
+
+## Output
+
+Each generated poem includes:
+- Title
+- Content (with line breaks)
+- Style match notes
+- Representative keywords
+- Related images from Pexels
+
+## Configuration
+
+Required environment variables (in `.env`):
+```
+GROQ_API_KEY=your_groq_key
+PEXELS_API_KEY=your_pexels_key
 ```
 
-### Notes
-- Use first 3 keywords
-- Get 3 images per poem
-- Store image URLs for publishing
+## Requirements
 
----
+- Node.js
+- Playwright (for scraping)
+- dotenv (for config)
 
-## 4. Google Sheets Integration
+## Notes
 
-### Purpose
-Store generated poetry for tracking.
-
-### Implementation
-```javascript
-const saveToSheets = async (data, sheetId, credentials) => {
-  // Use Google Sheets API
-  // Append row with: date, topic, title, content, image_url, status
-}
-```
-
----
-
-## 5. IDN Times Publisher (Playwright)
-
-### Purpose
-Automate publishing to IDN Times.
-
-### Implementation
-```javascript
-const publishToIDNTimes = async (page, credentials, content) => {
-  // Navigate to IDN Times
-  await page.goto('https://www.idntimes.com/write/new');
-  
-  // Login if needed
-  await page.fill('#email', credentials.email);
-  await page.fill('#password', credentials.password);
-  await page.click('button[type="submit"]');
-  
-  // Fill form
-  await page.fill('input[title]', content.title);
-  await page.fill('.editor', content.body);
-  
-  // Add featured image
-  await page.setInputFiles('input[type="file"]', content.imagePath);
-  
-  // Publish
-  await page.click('button.publish');
-}
-```
-
-### Notes
-- Need to handle login sessions
-- May need to solve captcha
-- Test with small content first
+- API keys must be obtained from Groq and Pexels
+- Workflow typically takes 2-3 minutes to complete
+- Images are sourced from Pexels (free for commercial use)
