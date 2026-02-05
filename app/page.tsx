@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
 export default function Home() {
+  const lastUpdated = new Date().toLocaleString('id-ID');
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       {/* Hero Section */}
@@ -54,6 +56,9 @@ export default function Home() {
       <footer className="container mx-auto px-4 py-10 text-center text-gray-500">
         <p>© 2026 Future Project. All rights reserved.</p>
         <p className="mt-2 text-sm">
+          Last updated: {lastUpdated}
+        </p>
+        <p className="mt-1 text-xs text-gray-600">
           Powered by Next.js + Tailwind CSS + OpenClaw
         </p>
       </footer>
