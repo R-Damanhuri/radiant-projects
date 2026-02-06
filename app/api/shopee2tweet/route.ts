@@ -1,42 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Style configurations with distinct personalities
+// Storytelling style configurations
 const styleConfigs = {
   casual: {
-    tone: 'santai dan hangat, kayak rekomendasi dari teman dekat',
+    tone: 'Curhat santai sama teman, kayak lagi nongkrong ngobrolin pengalaman',
+    structure: 'Pengalaman personal + insight + solusi + link',
     examples: [
-      "gue tadi checkout ini,总体不错 banget质量也很好👍",
-      "cuma mau bilang produk ini worth it banget, sudah coba dan legit",
+      "Gue tadi scrolling terus nemu ini, overall，总体不错 banget质量也很好👍 Langsung cek ya!",
+      "Baru aja nyoba produk ini dan cukup impressed, worth it banget! Cek linknya ya!",
     ],
-    emoji: '🛒',
-    cta: 'Langsung cek ya!'
+    emoji: '💭'
   },
   excited: {
-    tone: 'sangat antusias dan excited, kayak nemu harta karun',
+    tone: 'Excited sharing, kayak nemu harta karun dan harus share',
+    structure: 'Reaksi shocked + pengalaman + FOMO + link',
     examples: [
-      "INI WAJIB PUNYA 😭产品质量真的很好，比我想象的要好！",
+      "INI WAJIB PUNYA 😭产品质量真的很好，比我想象的要好！ BURUAN SEBELUM HABIS!",
       "GAK BOHONG inbox 这个产品太棒了，强烈推荐！性价比超高！",
     ],
-    emoji: '🎉',
-    cta: 'Buruan sebelum habis!'
+    emoji: '🔥'
   },
   professional: {
-    tone: 'profesional tapi tetap friendly, informatif',
+    tone: 'Professional review tapi tetap personal dan trustworthy',
+    structure: 'Problem statement + research + testing + recommendation',
     examples: [
-      "Rekomendasi produk berkualitas dengan harga kompetitif. Sudah review dan layak dipertimbangkan.",
-      "Produk ini menawarkan value yang baik. Detail produk sudah dicek dan recommended.",
+      "Setelah mencoba produk ini, saya impressed dengan kualitasnya. Detail dan spesifikasi di link berikut.",
+      "Rekomendasi hari ini untuk yang mencari solusi praktis. Based on personal testing, sangat worth it.",
     ],
-    emoji: '⭐',
-    cta: ' Cek detail di link berikut.'
+    emoji: '📋'
   },
   humor: {
-    tone: 'lucu dan witty, pake joke ringan yang relateable',
+    tone: 'Bercanda tapi tetap informatif, pake meme energy',
+    structure: 'Relatable struggle + plot twist + humor + link',
     examples: [
-      "pengeluaran bulan ini: ❌, belanja produk ini: ✅ (tidak menyesal sama sekali)",
-      "kata钱不是万能的 tapi produk ini worth every rupiah, trust me",
+      "pengeluaran bulan ini: ❌, belanja produk ini: ✅ (tidak menyesal sama sekali) link di bio ya!",
+      "Dulu Gue: 'mahal amat'. Setelah ini Gue: 'worth every rupiah' trust me bro 😅",
     ],
-    emoji: '😂',
-    cta: 'Jangan lewatkan!'
+    emoji: '😂'
   }
 };
 
@@ -54,37 +54,37 @@ export async function POST(request: NextRequest) {
     const userStyle = style || 'casual';
     const config = styleConfigs[userStyle as keyof typeof styleConfigs] || styleConfigs.casual;
 
-    // Build hashtag section
-    const hashtagSection = promoCode 
-      ? `\n\nPromo: Gunakan kode ${promoCode} untuk diskon! 🎁`
-      : '';
+    const systemPrompt = `Kamu adalah ahli social media marketing Indonesia yang menciptakan KONTEN STORYTELLING yang NATURAL dan ENGAGING.
 
-    const systemPrompt = `Kamu adalah ahli social media marketing Indonesia yang menciptakan tweet yang NATURAL, ENGAGING, dan TIDAK TERASA IKLAN.
+Tugas: Buat 1 post/storytelling yang terdengar seperti CURHATAN atau PENGALAMAN from a friend, BUKAN iklan.
 
-Tugas: Buat 1 tweet rekomendasi produk yang terdengar seperti rekomendasi tulus dari teman, bukan iklan продавца.
+STRUKTUR STORYTELLING:
+1. Mulai dengan pengalaman atau situasi relatable (curhat/dongeng)
+2. Sisipkan produk sebagai SOLUSI dari situasi tersebut
+3. Cerita harus NATURAL, bukan "IKLAN!"
+4. Link produk harus terintegrasi dalam cerita, bukan di akhir kalimat
 
 PRINSIP:
 1. Gunakan bahasa Indonesia yang casual dan natural
-2. Sertakan pengalaman atau feeling pribadi ( 已买, 推荐, 值得)
-3. Campur Indonesian dan English/Chinese (code-switching natural)
-4. Maks 250 karakter (sisanya untuk hashtag)
-5. ${config.tone}
-6. ${promoCode ? `Wajib sertakan promo code ${promoCode} dengan cara natural.` : 'Tidak perlu promo code.'}
-7. Akhiri dengan CTA yang ${config.cta.toLowerCase().replace('.', '')}
+2. Sertakan pengalaman atau feeling pribadi
+3. Maks 250 karakter (sisanya untuk hashtag)
+4. ${config.tone}
+5. ${promoCode ? `Wajib sertakan promo code ${promoCode} dengan cara natural.` : 'Tidak perlu promo code.'}
+6. Akhiri dengan CTA natural
 
-CONTOH GAYA "${style?.toUpperCase() || 'CASUAL'}":
+CONTOH GAYA "${userStyle.toUpperCase()}":
 ${config.examples.map(ex => `- "${ex}"`).join('\n')}
 
 FORMAT RESPONSE JSON:
-{"tweet": "tweet dalam 1 paragraf, natural, tidak diawali emoji berlebihan", "hashtags": ["#ShopeeIndonesia", "#BelanjaOnline", "#ProdukBagus", "#Recommend"]}
+{"tweet": "Cerita 1 paragraf, natural, seperti curhat teman. Sisipkan link produk di tengah atau akhir cerita dengan natural.", "hashtags": ["#ShopeeIndonesia", "#BelanjaOnline", "#Curhat", "#Recommend"]}
 
 JANGAN:
-- Gunakan emoji berlebihan di awal kalimat
 - Mulai dengan "Halo friends!" atau "Haii!"
-- Terlalu salesy atau iklan keras
-- Gunakan hashtag di dalam tweet (taruh di luar)`;
+- Terlalu salesy atau "BELI SEKARANG!"
+- Taruh link di akhir doang tanpa konteks
+- Gunakan emoji berlebihan di awal`;
 
-    console.log('Generating tweet for:', shopeeLink, 'style:', userStyle);
+    console.log('Generating storytelling tweet for:', shopeeLink, 'style:', userStyle);
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -98,8 +98,8 @@ JANGAN:
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Produk: ${productName || 'dari Shopee'}\nLink: ${shopeeLink}` }
         ],
-        temperature: 0.8, // Slightly higher for more variety
-        max_tokens: 250,
+        temperature: 0.85, // Higher for more creative storytelling
+        max_tokens: 300,
       }),
     });
 
@@ -128,29 +128,24 @@ JANGAN:
       // Not JSON, use as is
     }
 
-    // Generate dynamic hashtags based on product name and style
-    const productKeywords = productName 
-      ? productName.toLowerCase().split(' ').slice(0, 2).map((w: string) => `#${w.replace(/[^a-z]/g, '')}`)
-      : [];
-    
-    const styleHashtags = {
-      casual: ['#OOTD', '#DailyRecommend', '#KopiCurat'],
-      excited: ['#WajibPunya', '#Hype', '#BestFind'],
-      professional: ['#ProductReview', '#QualityCheck', '#TrustedSeller'],
-      humor: ['#WorthIt', '#TidakMenyesal', '#BudgetFriendly']
+    // Generate dynamic hashtags based on style
+    const styleHashtags: Record<string, string[]> = {
+      casual: ['#Curhat', '# pengalaman', '#RealTalk'],
+      excited: ['#WajibPunya', '#Hype', '#FOMO'],
+      professional: ['#Review', '#Trusted', '#Rekomendasi'],
+      humor: ['#WorthIt', '#TidakMenyesal', '#Relatable']
     };
 
     const hashtags = [
       '#ShopeeIndonesia',
       '#BelanjaOnline',
-      ...productKeywords.slice(0, 2),
-      ...(styleHashtags[userStyle as keyof typeof styleHashtags] || styleHashtags.casual).slice(0, 2)
+      ...(styleHashtags[userStyle] || styleHashtags.casual).slice(0, 2)
     ];
 
     return NextResponse.json({
       success: true,
       tweet: tweet,
-      hashtags: [...new Set(hashtags)] // Remove duplicates
+      hashtags: hashtags
     });
 
   } catch (error) {
