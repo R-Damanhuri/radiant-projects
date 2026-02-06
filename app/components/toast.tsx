@@ -13,18 +13,6 @@ export function ToastProvider() {
           color: '#f3f4f6',
           border: '1px solid #374151',
         },
-        success: {
-          iconTheme: {
-            primary: '#10b981',
-            secondary: '#f3f4f6',
-          },
-        },
-        error: {
-          iconTheme: {
-            primary: '#ef4444',
-            secondary: '#f3f4f6',
-          },
-        },
       }}
     />
   );
