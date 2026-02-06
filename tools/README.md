@@ -1,15 +1,28 @@
-# Future Project - Tools
+# Tools - Radiant Projects
 
-Tools and utilities for AI SaaS Trend 2026 project.
+Automation tools and utilities for Radiant Projects.
 
 ## Status
 
-🚧 Setup in progress
+🔧 Active Development
 
-## Notes
+## Contents
 
-This directory will contain integration tools for the AI SaaS project.
+| Tool | Purpose |
+|------|---------|
+| `poetry-workflow.js` | Main poetry automation workflow |
+| `scraper-fiction.js` | IDN Times poetry scraper |
+
+## Usage
+
+```bash
+# Run poetry workflow
+node poetry-workflow.js
+
+# Scrape only
+node scraper-fiction.js
+```
 
 ---
 
-**Last Updated:** 2026-02-05
+**Last Updated:** 2026-02-06
