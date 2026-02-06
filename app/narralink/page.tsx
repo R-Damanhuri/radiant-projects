@@ -4,8 +4,18 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Button, Input, Card, Skeleton } from '../components/ui';
 
-// NarralinkPage - AI-powered narrative link generator
-// Formerly Shopee2Tweet, now supports any link type
+// NarralinkPage - AI-powered narrative content generator
+// Converts links to engaging storytelling/curhat content
+
+interface ThreadItem {
+  text: string;
+}
+
+interface StoryResult {
+  thread: ThreadItem[];
+  hashtags: string[];
+  style: string;
+}
 
 export default function NarralinkPage() {
   const [formData, setFormData] = useState({
@@ -14,13 +24,10 @@ export default function NarralinkPage() {
     style: 'casual',
     promoCode: ''
   });
-  const [result, setResult] = useState<{
-    tweet: string;
-    hashtags: string[];
-  } | null>(null);
+  const [result, setResult] = useState<StoryResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [history, setHistory] = useState<typeof result[]>([]);
+  const [history, setHistory] = useState<StoryResult[]>([]);
   const [toast, setToast] = useState<{message: string; type: 'success' | 'error'} | null>(null);
 
   // Show toast notification
@@ -31,13 +38,22 @@ export default function NarralinkPage() {
 
   const handleCopy = async () => {
     if (result) {
-      const fullText = result.tweet + '\n\n' + result.hashtags.join(' ');
+      const fullText = result.thread.map(t => t.text).join('\n\n') + '\n\n' + result.hashtags.join(' ');
       try {
         await navigator.clipboard.writeText(fullText);
         showToastMessage('Copied to clipboard!', 'success');
       } catch {
         showToastMessage('Failed to copy', 'error');
       }
+    }
+  };
+
+  const handleCopyParagraph = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      showToastMessage('Paragraph copied!', 'success');
+    } catch {
+      showToastMessage('Failed to copy', 'error');
     }
   };
 
@@ -57,12 +73,12 @@ export default function NarralinkPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to generate tweet');
+        throw new Error(data.error || 'Failed to generate story');
       }
 
       setResult(data);
       setHistory(prev => [...prev.slice(-4), data]);
-      showToastMessage('Tweet generated successfully!', 'success');
+      showToastMessage('Story generated successfully!', 'success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
       showToastMessage('Generation failed', 'error');
@@ -77,6 +93,21 @@ export default function NarralinkPage() {
       setResult(previous);
       setHistory(prev => prev.slice(0, -1));
     }
+  };
+
+  const getStyleEmoji = (style: string) => {
+    const emojis: Record<string, string> = {
+      casual: '💭',
+      excited: '🔥',
+      professional: '📋',
+      humor: '😂'
+    };
+    return emojis[style] || '📝';
+  };
+
+  const getTotalLength = () => {
+    if (!result) return 0;
+    return result.thread.reduce((acc, t) => acc + t.text.length, 0);
   };
 
   return (
@@ -109,14 +140,14 @@ export default function NarralinkPage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-12">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           {/* Hero */}
           <div className="text-center mb-8 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               ✨ Narralink
             </h1>
             <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto">
-              Convert any link to natural, engaging social media posts with AI
+              Convert any link to natural, engaging storytelling content
             </p>
             <div className="mt-4 flex justify-center gap-3 text-sm animate-fade-in-delayed">
               <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full">
@@ -127,7 +158,7 @@ export default function NarralinkPage() {
             {/* Keyboard shortcuts hint */}
             <div className="mt-4 flex justify-center gap-4 text-xs text-gray-500 animate-fade-in-delayed-2">
               <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+Enter</kbd> Generate</span>
-              <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+C</kbd> Copy</span>
+              <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+C</kbd> Copy All</span>
               <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Esc</kbd> Clear</span>
             </div>
           </div>
@@ -181,7 +212,7 @@ export default function NarralinkPage() {
                 />
 
                 <Button type="submit" loading={loading} className="w-full">
-                  {loading ? 'Generating...' : '✨ Generate Tweet'}
+                  {loading ? 'Generating Story...' : '✨ Generate Story'}
                 </Button>
               </form>
             </Card>
@@ -202,43 +233,69 @@ export default function NarralinkPage() {
 
           {/* Skeleton Loading */}
           {loading && (
-            <div className="mt-8 animate-fade-in">
-              <Card>
-                <Skeleton className="h-6 w-1/3 mb-4" />
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-5/6" />
-                  <Skeleton className="h-4 w-4/6" />
-                </div>
-                <div className="mt-4 flex gap-3">
-                  <Skeleton className="h-10 w-1/3" />
-                  <Skeleton className="h-10 w-1/3" />
-                </div>
-              </Card>
+            <div className="mt-8 animate-fade-in space-y-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                  <Skeleton className="h-6 w-1/4 mb-4" />
+                  <div className="space-y-3">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-4/6" />
+                  </div>
+                  <div className="mt-4 flex gap-3">
+                    <Skeleton className="h-8 w-24" />
+                  </div>
+                </Card>
+              ))}
             </div>
           )}
 
-          {/* Result */}
+          {/* Result - Thread Format */}
           {result && (
             <div className="mt-8 animate-scale-in">
               <Card>
-                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                  <span>📝</span> Generated Tweet
-                </h2>
-                <div className="bg-gray-700/50 p-4 rounded-lg mb-2 whitespace-pre-wrap text-gray-200">
-                  {result.tweet}
-                  {'\n\n'}
-                  <span className="text-purple-400">{result.hashtags.join(' ')}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-gray-400 px-1">
-                  <span>{result.tweet.length + result.hashtags.join(' ').length} / 280 karakter</span>
-                  <span className={result.tweet.length > 260 ? 'text-yellow-400' : 'text-green-400'}>
-                    {result.tweet.length > 260 ? 'M接近 limit!' : '✓ OK'}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <span>{getStyleEmoji(result.style)}</span> Your Story
+                  </h2>
+                  <span className="text-xs text-gray-400 bg-gray-700/50 px-2 py-1 rounded capitalize">
+                    {result.style} style
                   </span>
                 </div>
-                <div className="flex gap-3 mt-4">
+
+                {/* Thread Content */}
+                <div className="space-y-4 mb-4">
+                  {result.thread.map((item, index) => (
+                    <div key={index} className="relative">
+                      <div className="bg-gray-700/50 p-4 rounded-lg text-gray-200 whitespace-pre-wrap">
+                        {item.text}
+                      </div>
+                      <button
+                        onClick={() => handleCopyParagraph(item.text)}
+                        className="absolute top-2 right-2 text-xs bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Copy paragraph"
+                      >
+                        📋
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Hashtags */}
+                <div className="bg-gray-700/30 p-3 rounded-lg mb-4">
+                  <p className="text-purple-400 text-sm">{result.hashtags.join(' ')}</p>
+                </div>
+
+                {/* Stats */}
+                <div className="flex items-center justify-between text-xs text-gray-400 px-1 mb-4">
+                  <span>{result.thread.length} paragraphs</span>
+                  <span>{getTotalLength()} total characters</span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3">
                   <Button onClick={handleCopy} className="flex-1">
-                    📋 Copy Tweet
+                    📋 Copy All
                   </Button>
                   <Button variant="secondary" onClick={handleSubmit} className="flex-1">
                     🔄 Regenerate
@@ -259,16 +316,16 @@ export default function NarralinkPage() {
           {/* Features */}
           <div className="mt-12 grid grid-cols-3 gap-4 animate-fade-in-delayed-3">
             <div className="text-center p-4">
-              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">⚡</div>
-              <p className="text-sm text-gray-400">Fast Generation</p>
+              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">📖</div>
+              <p className="text-sm text-gray-400">Storytelling</p>
+            </div>
+            <div className="text-center p-4">
+              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">💭</div>
+              <p className="text-sm text-gray-400">Natural & Personal</p>
             </div>
             <div className="text-center p-4">
               <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">🎯</div>
-              <p className="text-sm text-gray-400">Natural Sounding</p>
-            </div>
-            <div className="text-center p-4">
-              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">💰</div>
-              <p className="text-sm text-gray-400">Affiliate Ready</p>
+              <p className="text-sm text-gray-400">Thread Ready</p>
             </div>
           </div>
         </div>

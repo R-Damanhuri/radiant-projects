@@ -3,40 +3,44 @@ import { NextRequest, NextResponse } from 'next/server';
 // Storytelling style configurations
 const styleConfigs = {
   casual: {
-    tone: 'Curhat santai sama teman, kayak lagi nongkrong ngobrolin pengalaman',
-    structure: 'Pengalaman personal + insight + solusi + link',
+    tone: 'Curhat santai sama teman, kayak lagi ngobrolin berjam-jam',
+    structure: 'Situasi → Experience → Insight → Call to Action',
     examples: [
-      "Gue tadi scrolling terus nemu ini, overall，总体不错 banget质量也很好👍 Langsung cek ya!",
-      "Baru aja nyoba produk ini dan cukup impressed, worth it banget! Cek linknya ya!",
+      "Gue mau cerita sedikit... Dulu tuh Gue sering struggle sama [masalah], entah itu [detail masalah]. Coba berbagai produk hasilnya gitu-gitu aja sampe nemu ini. Dan honestly, ini beda banget dari yang pernah Gue coba sebelumnya. Bukan sponsored atau apa, tapi genuinely surprised dengan hasilnya. Buat yang pernah mengalami hal serupa, coba deh cek link di bawah. Siapa tau membantu juga buat kalian...",
     ],
-    emoji: '💭'
+    emoji: '💭',
+    minLength: 500,
+    maxLength: 1000
   },
   excited: {
-    tone: 'Excited sharing, kayak nemu harta karun dan harus share',
-    structure: 'Reaksi shocked + pengalaman + FOMO + link',
+    tone: 'Excited sharing, kayak nemu harta karun dan harus cerita ke semua orang',
+    structure: 'Shocked Reaction → Backstory → The Discovery → FOMO + Call to Action',
     examples: [
-      "INI WAJIB PUNYA 😭产品质量真的很好，比我想象的要好！ BURUAN SEBELUM HABIS!",
-      "GAK BOHONG inbox 这个产品太棒了，强烈推荐！性价比超高！",
+      "GAIS. GUE HARUS BAGIIN INI. Denger-denger ya...\n\nJadi gini, Gue selama ini tuh [struggle cerita]. Udah coba ini-itu, hasilnya biasa aja. Nahkemarin itu scrolling-scroll, nemu produk ini. Awalnya skeptis because usually produk yang hype gini ratedebate. TAPI ENG ing.\n\nSeriously, ini game changer banget. [Detail pengalaman]. Buat yang lagi nyari solusi, trust me, coba dulu sebelum nyesal. Link ada di bawah, gas poll!",
     ],
-    emoji: '🔥'
+    emoji: '🔥',
+    minLength: 600,
+    maxLength: 1200
   },
   professional: {
-    tone: 'Professional review tapi tetap personal dan trustworthy',
-    structure: 'Problem statement + research + testing + recommendation',
+    tone: 'Professional review tapi tetap personal dan engaging',
+    structure: 'Problem Statement → Research → Personal Testing → Recommendation',
     examples: [
-      "Setelah mencoba produk ini, saya impressed dengan kualitasnya. Detail dan spesifikasi di link berikut.",
-      "Rekomendasi hari ini untuk yang mencari solusi praktis. Based on personal testing, sangat worth it.",
+      "Halo semua, hari ini Gue mau sharing tentang sesuatu yang mungkin berguna untuk kalian yang juga mengalami hal serupa.\n\nJadi background-nya: Gue selama ini mengalami [masalah]. Setelah research mendalam dan coba berbagai alternatif, Gue finally menemukan solusi yang worth it untuk di-review.\n\nDari sisi spesifikasi: [detail teknis]. Dari sisi pengalaman pakai: [pengalaman personal].\n\nOverall, untuk use case seperti ini, Gue rasa produk ini cukup recommendable. Bukan yang paling murah atau paling mahal, tapi value-nya oke.\n\nBuat yang tertarik, detail lengkap dan spesifikasi bisa dicek di link berikut:\n\n[Link produk]\n\nFeel free to ask kalau ada pertanyaan~",
     ],
-    emoji: '📋'
+    emoji: '📋',
+    minLength: 600,
+    maxLength: 1200
   },
   humor: {
-    tone: 'Bercanda tapi tetap informatif, pake meme energy',
-    structure: 'Relatable struggle + plot twist + humor + link',
+    tone: 'Bercanda tapi tetap informatif, pake meme energy dan relatable struggle',
+    structure: 'Relatable Struggle → Plot Twist → The Solution → Meme Energy CTA',
     examples: [
-      "pengeluaran bulan ini: ❌, belanja produk ini: ✅ (tidak menyesal sama sekali) link di bio ya!",
-      "Dulu Gue: 'mahal amat'. Setelah ini Gue: 'worth every rupiah' trust me bro 😅",
+      "Okok ini cerita Gue yang mungkin lo pada bisa relate...\n\nDulu Gue: '[mimpi/masalah awal]'.udah trying so hard, [effort yang dilakukan]. Tapi hasilnya? Ya gitu deh, namanya juga hidup.\n\nSAMPE GITU.\n\nGue nemu ini dan dalam hati: \" Lah, ini啥情况? \".\n\nLong story short: [pengalaman dengan produk]. Dan Gue揞 like: okay, ini actually works.\n\nMoral of the story: Sometimes you just need to find the right thing.\n\nLink ada di bawah, no cap. Bye~",
     ],
-    emoji: '😂'
+    emoji: '😂',
+    minLength: 500,
+    maxLength: 1000
   }
 };
 
@@ -54,37 +58,49 @@ export async function POST(request: NextRequest) {
     const userStyle = style || 'casual';
     const config = styleConfigs[userStyle as keyof typeof styleConfigs] || styleConfigs.casual;
 
-    const systemPrompt = `Kamu adalah ahli social media marketing Indonesia yang menciptakan KONTEN STORYTELLING yang NATURAL dan ENGAGING.
+    const systemPrompt = `Kamu adalah content creator Indonesia yang ahli membuat KONTEN CURHATAN atau STORYTELLING yang engaging.
 
-Tugas: Buat 1 post/storytelling yang terdengar seperti CURHATAN atau PENGALAMAN from a friend, BUKAN iklan.
+Tugas: Buat cerita panjang/curhat tentang produk ini yang TIDAK TERASA IKLAN sama sekali.
 
-STRUKTUR STORYTELLING:
-1. Mulai dengan pengalaman atau situasi relatable (curhat/dongeng)
-2. Sisipkan produk sebagai SOLUSI dari situasi tersebut
-3. Cerita harus NATURAL, bukan "IKLAN!"
-4. Link produk harus terintegrasi dalam cerita, bukan di akhir kalimat
+FORMAT YANG DIHARAPKAN:
+- Bukan tweet pendek! Ini harus cerita/curhat panjang
+- Gunakan format paragraph dengan line breaks untuk readability
+- Struktur: ${config.structure}
+- Tone: ${config.tone}
+- Panjang: ${config.minLength}-${config.maxLength} karakter
+
+STRUKTUR CERITA:
+1. HOOK - Mulai dengan situasi atau relatable experience
+2. BODY - Ceritain pengalaman, struggle, atau insight
+3. NATURAL MENTION - Sisipkan produk sebagai "temuan" atau "solusi", bukan "IKLAN!"
+4. CTA - Tutup dengan ajakan natural untuk cek link
 
 PRINSIP:
-1. Gunakan bahasa Indonesia yang casual dan natural
-2. Sertakan pengalaman atau feeling pribadi
-3. Maks 250 karakter (sisanya untuk hashtag)
-4. ${config.tone}
-5. ${promoCode ? `Wajib sertakan promo code ${promoCode} dengan cara natural.` : 'Tidak perlu promo code.'}
-6. Akhiri dengan CTA natural
+1. Gunakan bahasa Indonesia yang NATURAL, kayak lagi chat/curhat sama teman
+2. Campur Indonesian dan English/Chinese (code-switching) itu natural
+3. Sertakan detail dan emotion yang believable
+4. JANGAN sebut "IKLAN" atau "SPONSORED"
+5. Link produk harus terintegrasi dalam cerita, bukan di akhir doang
+6. Buat terasa seperti RECOMMENDATION dari teman, bukan copywriter
 
 CONTOH GAYA "${userStyle.toUpperCase()}":
 ${config.examples.map(ex => `- "${ex}"`).join('\n')}
 
-FORMAT RESPONSE JSON:
-{"tweet": "Cerita 1 paragraf, natural, seperti curhat teman. Sisipkan link produk di tengah atau akhir cerita dengan natural.", "hashtags": ["#ShopeeIndonesia", "#BelanjaOnline", "#Curhat", "#Recommend"]}
+${promoCode ? `PENTING: Wajib sebutkan promo code ${promoCode} dengan cara natural dalam cerita.` : ''}
 
-JANGAN:
-- Mulai dengan "Halo friends!" atau "Haii!"
-- Terlalu salesy atau "BELI SEKARANG!"
-- Taruh link di akhir doang tanpa konteks
-- Gunakan emoji berlebihan di awal`;
+RESPONSE JSON:
+{
+  "thread": [
+    {"text": "Paragraf pertama (hook/opening)"},
+    {"text": "Paragraf kedua (body/detail)"},
+    {"text": "Paragraf ketiga (closing + link + CTA)"}
+  ],
+  "hashtags": ["#Curhat", "#Pengalaman", "#Recommend", "#ShopeeIndonesia"]
+}
 
-    console.log('Generating storytelling tweet for:', shopeeLink, 'style:', userStyle);
+PENTING: Return valid JSON only. Jangan ada markdown formatting atau text lain.`;
+
+    console.log('Generating long-form storytelling for:', shopeeLink, 'style:', userStyle);
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -98,8 +114,8 @@ JANGAN:
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Produk: ${productName || 'dari Shopee'}\nLink: ${shopeeLink}` }
         ],
-        temperature: 0.85, // Higher for more creative storytelling
-        max_tokens: 300,
+        temperature: 0.85,
+        max_tokens: 1500,
       }),
     });
 
@@ -115,43 +131,42 @@ JANGAN:
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
 
-    // Extract tweet and hashtags
-    let tweet = content.trim();
+    // Parse the response
+    let parsed: { thread: { text: string }[]; hashtags: string[] } | null = null;
     
-    // Remove JSON wrapper if present
     try {
-      if (tweet.startsWith('{')) {
-        const parsed = JSON.parse(tweet);
-        tweet = parsed.tweet || tweet;
+      // Try to parse as JSON
+      if (content.includes('[') && content.includes('thread')) {
+        // Extract JSON from response
+        const jsonMatch = content.match(/\{[\s\S]*?\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        }
       }
     } catch (e) {
-      // Not JSON, use as is
+      console.error('Parse error:', e);
     }
 
-    // Generate dynamic hashtags based on style
-    const styleHashtags: Record<string, string[]> = {
-      casual: ['#Curhat', '# pengalaman', '#RealTalk'],
-      excited: ['#WajibPunya', '#Hype', '#FOMO'],
-      professional: ['#Review', '#Trusted', '#Rekomendasi'],
-      humor: ['#WorthIt', '#TidakMenyesal', '#Relatable']
-    };
-
-    const hashtags = [
-      '#ShopeeIndonesia',
-      '#BelanjaOnline',
-      ...(styleHashtags[userStyle] || styleHashtags.casual).slice(0, 2)
-    ];
+    // Fallback to plain text format
+    if (!parsed) {
+      const paragraphs = content.split('\n\n').filter((p: string) => p.trim().length > 50);
+      parsed = {
+        thread: paragraphs.map((p: string) => ({ text: p.trim() })),
+        hashtags: ['#Curhat', '#Pengalaman', '#Recommend', '#ShopeeIndonesia']
+      };
+    }
 
     return NextResponse.json({
       success: true,
-      tweet: tweet,
-      hashtags: hashtags
+      thread: parsed.thread,
+      hashtags: parsed.hashtags,
+      style: userStyle
     });
 
   } catch (error) {
-    console.error('Error generating tweet:', error);
+    console.error('Error generating story:', error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to generate tweet' },
+      { error: error instanceof Error ? error.message : 'Failed to generate story' },
       { status: 500 }
     );
   }
