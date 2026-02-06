@@ -1,22 +1,15 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Card, FeatureCard } from './components/ui';
-import { ToastProvider } from './components/toast';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      <ToastProvider />
       
       {/* Hero Section */}
       <header className="container mx-auto px-4 py-20 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+        <div className="animate-fade-in">
           <div className="inline-block px-4 py-1 mb-6 text-sm text-purple-300 bg-purple-900/30 rounded-full border border-purple-700 animate-pulse">
             🚀 Radiant Projects
           </div>
@@ -26,30 +19,19 @@ export default function Home() {
           <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-2xl mx-auto leading-relaxed">
             Two AI-powered projects for Indonesian market automation
           </p>
-        </motion.div>
+        </div>
       </header>
 
       {/* Projects Section */}
       <section className="container mx-auto px-4 py-12">
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* Narralink */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
+          <div className="animate-slide-in-left">
             <Link href="/narralink" className="group block">
-              <motion.div
-                className="p-8 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-300"
-                whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -12px rgba(168, 85, 247, 0.25)' }}
-              >
-                <motion.div
-                  className="text-5xl mb-4"
-                  whileHover={{ scale: 1.2, rotate: 10 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                >
+              <div className="p-8 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/10">
+                <div className="text-5xl mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
                   ✨
-                </motion.div>
+                </div>
                 <h2 className="text-2xl font-bold mb-2 group-hover:text-purple-400 transition-colors">
                   Narralink
                 </h2>
@@ -62,28 +44,17 @@ export default function Home() {
                   </span>
                   <span className="text-gray-500">Next.js + Groq API</span>
                 </div>
-              </motion.div>
+              </div>
             </Link>
-          </motion.div>
+          </div>
 
           {/* IDN Times Poetry */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-          >
+          <div className="animate-slide-in-right">
             <Link href="/idntimes-poetry" className="group block">
-              <motion.div
-                className="p-8 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-300"
-                whileHover={{ scale: 1.02, boxShadow: '0 20px 40px -12px rgba(168, 85, 247, 0.25)' }}
-              >
-                <motion.div
-                  className="text-5xl mb-4"
-                  whileHover={{ scale: 1.2, rotate: -10 }}
-                  transition={{ type: 'spring', stiffness: 300 }}
-                >
+              <div className="p-8 bg-gray-800/50 rounded-xl border border-gray-700 hover:border-purple-500/50 transition-all duration-300 hover:transform hover:scale-[1.02] hover:shadow-xl hover:shadow-purple-500/10">
+                <div className="text-5xl mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300">
                   📝
-                </motion.div>
+                </div>
                 <h2 className="text-2xl font-bold mb-2 group-hover:text-purple-400 transition-colors">
                   IDN Times Poetry
                 </h2>
@@ -96,20 +67,15 @@ export default function Home() {
                   </span>
                   <span className="text-gray-500">Playwright + Groq API</span>
                 </div>
-              </motion.div>
+              </div>
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
       <section className="container mx-auto px-4 py-20">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto"
-        >
+        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto animate-fade-in-delayed">
           <FeatureCard
             icon="⚡"
             title="Fast & Efficient"
@@ -125,51 +91,37 @@ export default function Home() {
             title="Secure by Design"
             description="Privacy and security are our top priorities."
           />
-        </motion.div>
+        </div>
       </section>
 
       {/* Social Proof Section */}
       <section className="container mx-auto px-4 py-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="max-w-3xl mx-auto text-center"
-        >
+        <div className="max-w-3xl mx-auto text-center animate-fade-in-delayed-2">
           <h2 className="text-3xl font-bold mb-8">Trusted by Developers</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <Card className="text-center h-full">
+            <div className="group">
+              <Card className="text-center h-full group-hover:scale-105 transition-transform duration-300">
                 <div className="text-purple-400 text-4xl mb-3">🚀</div>
                 <p className="text-gray-300 italic mb-4">"Narralink helped me save hours creating social media content. Game changer!"</p>
                 <p className="text-sm text-gray-500">— Indonesian Developer</p>
               </Card>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <Card className="text-center h-full">
+            </div>
+            <div className="group">
+              <Card className="text-center h-full group-hover:scale-105 transition-transform duration-300">
                 <div className="text-purple-400 text-4xl mb-3">⚡</div>
                 <p className="text-gray-300 italic mb-4">"The automation pipeline is incredibly smooth. Poetry workflow just works."</p>
                 <p className="text-sm text-gray-500">— Content Creator</p>
               </Card>
-            </motion.div>
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 300 }}
-            >
-              <Card className="text-center h-full">
+            </div>
+            <div className="group">
+              <Card className="text-center h-full group-hover:scale-105 transition-transform duration-300">
                 <div className="text-purple-400 text-4xl mb-3">🎯</div>
                 <p className="text-gray-300 italic mb-4">"Finally, AI tools built with Indonesian context in mind. Great job!"</p>
                 <p className="text-sm text-gray-500">— Tech Enthusiast</p>
               </Card>
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Footer */}

@@ -1,7 +1,6 @@
 'use client';
 
 import { ButtonHTMLAttributes, forwardRef } from 'react';
-import { motion, HTMLMotionProps } from 'framer-motion';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline';
@@ -20,13 +19,11 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     };
 
     return (
-      <motion.button
+      <button
         ref={ref}
-        whileHover={{ scale: disabled ? 1 : 1.02 }}
-        whileTap={{ scale: disabled ? 1 : 0.98 }}
         className={`${baseStyles} ${variants[variant]} ${className}`}
         disabled={disabled || loading}
-        {...props as any}
+        {...props}
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">
@@ -37,7 +34,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             Loading...
           </span>
         ) : children}
-      </motion.button>
+      </button>
     );
   }
 );
@@ -59,11 +56,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             {icon} {label}
           </label>
         )}
-        <motion.input
+        <input
           ref={ref}
-          whileFocus={{ scale: 1.01 }}
           className={`w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all ${className}`}
-          {...props as any}
+          {...props}
         />
       </div>
     );
@@ -73,25 +69,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 Input.displayName = 'Input';
 
 // Card Component
-interface CardProps extends HTMLMotionProps<'div'> {
+interface CardProps {
   children: React.ReactNode;
   hover?: boolean;
+  className?: string;
 }
 
-export const Card = ({ children, hover = false, className = '', ...props }: CardProps) => {
-  const Component = motion.div as any;
-  
+export function Card({ children, hover = false, className = '' }: CardProps) {
   return (
-    <Component
-      className={`p-6 bg-gray-800/50 rounded-xl border border-gray-700 ${hover ? 'hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10' : ''} ${className}`}
-      whileHover={hover ? { scale: 1.02 } : undefined}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      {...props}
+    <div
+      className={`p-6 bg-gray-800/50 rounded-xl border border-gray-700 ${hover ? 'hover:border-purple-500/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300' : ''} ${className}`}
     >
       {children}
-    </Component>
+    </div>
   );
-};
+}
 
 // Skeleton Component
 interface SkeletonProps {
@@ -107,10 +99,11 @@ export function Skeleton({ className = '', variant = 'text' }: SkeletonProps) {
   };
 
   return (
-    <motion.div
+    <div
       className={`bg-gray-700 ${variants[variant]} ${className}`}
-      animate={{ opacity: [0.5, 1, 0.5] }}
-      transition={{ duration: 1.5, repeat: Infinity }}
+      style={{
+        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+      }}
     />
   );
 }
@@ -124,14 +117,10 @@ interface FeatureCardProps {
 
 export function FeatureCard({ icon, title, description }: FeatureCardProps) {
   return (
-    <Card hover className="text-center">
-      <motion.div
-        className="text-4xl mb-4"
-        whileHover={{ scale: 1.2, rotate: 10 }}
-        transition={{ type: 'spring', stiffness: 300 }}
-      >
+    <Card hover className="text-center group">
+      <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block">
         {icon}
-      </motion.div>
+      </div>
       <h3 className="text-xl font-semibold mb-2">{title}</h3>
       <p className="text-gray-400">{description}</p>
     </Card>

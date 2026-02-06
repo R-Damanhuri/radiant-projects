@@ -1,11 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Button, Input, Card, Skeleton } from '../components/ui';
-import { ToastProvider, showToast, copyToClipboard } from '../components/toast';
-import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 // NarralinkPage - AI-powered narrative link generator
 // Formerly Shopee2Tweet, now supports any link type
@@ -24,37 +21,23 @@ export default function NarralinkPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [history, setHistory] = useState<typeof result[]>([]);
+  const [toast, setToast] = useState<{message: string; type: 'success' | 'error'} | null>(null);
 
-  // Keyboard shortcuts
-  const shortcuts = [
-    {
-      key: 'Enter',
-      ctrl: true,
-      action: () => handleSubmit({ preventDefault: () => {} } as any),
-      description: 'Generate tweet'
-    },
-    {
-      key: 'c',
-      ctrl: true,
-      action: () => result && handleCopy(),
-      description: 'Copy result'
-    },
-    {
-      key: 'Escape',
-      action: () => {
-        setResult(null);
-        setError('');
-      },
-      description: 'Clear result'
-    }
-  ];
-
-  useKeyboardShortcuts(shortcuts);
+  // Show toast notification
+  const showToastMessage = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const handleCopy = async () => {
     if (result) {
       const fullText = result.tweet + '\n\n' + result.hashtags.join(' ');
-      await copyToClipboard(fullText);
+      try {
+        await navigator.clipboard.writeText(fullText);
+        showToastMessage('Copied to clipboard!', 'success');
+      } catch {
+        showToastMessage('Failed to copy', 'error');
+      }
     }
   };
 
@@ -78,11 +61,11 @@ export default function NarralinkPage() {
       }
 
       setResult(data);
-      setHistory(prev => [...prev.slice(-4), data]); // Keep last 5 results
-      showToast.success('Tweet generated successfully!');
+      setHistory(prev => [...prev.slice(-4), data]);
+      showToastMessage('Tweet generated successfully!', 'success');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
-      showToast.error('Generation failed');
+      showToastMessage('Generation failed', 'error');
     } finally {
       setLoading(false);
     }
@@ -98,7 +81,14 @@ export default function NarralinkPage() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      <ToastProvider />
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg animate-toast-in z-50 ${
+          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`}>
+          {toast.type === 'success' ? '✅' : '⚠️'} {toast.message}
+        </div>
+      )}
       
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700">
@@ -121,47 +111,29 @@ export default function NarralinkPage() {
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto">
           {/* Hero */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mb-8"
-          >
+          <div className="text-center mb-8 animate-fade-in">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               ✨ Narralink
             </h1>
             <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto">
               Convert any link to natural, engaging social media posts with AI
             </p>
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="mt-4 flex justify-center gap-3 text-sm"
-            >
+            <div className="mt-4 flex justify-center gap-3 text-sm animate-fade-in-delayed">
               <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full">
                 🚀 Previously Shopee2Tweet
               </span>
-            </motion.div>
+            </div>
             
             {/* Keyboard shortcuts hint */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="mt-4 flex justify-center gap-4 text-xs text-gray-500"
-            >
+            <div className="mt-4 flex justify-center gap-4 text-xs text-gray-500 animate-fade-in-delayed-2">
               <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+Enter</kbd> Generate</span>
               <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+C</kbd> Copy</span>
               <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Esc</kbd> Clear</span>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
           {/* Input Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <div className="animate-slide-up">
             <Card className="space-y-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
@@ -213,36 +185,24 @@ export default function NarralinkPage() {
                 </Button>
               </form>
             </Card>
-          </motion.div>
+          </div>
 
           {/* Error */}
-          <AnimatePresence>
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-4 p-4 bg-red-900/30 border border-red-700/50 rounded-xl text-red-300"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="text-xl">⚠️</span>
-                  <div>
-                    <p className="font-medium mb-1">Generation Failed</p>
-                    <p className="text-sm text-red-400/80">{error}</p>
-                  </div>
+          {error && (
+            <div className="mt-4 p-4 bg-red-900/30 border border-red-700/50 rounded-xl text-red-300 animate-fade-in">
+              <div className="flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-medium mb-1">Generation Failed</p>
+                  <p className="text-sm text-red-400/80">{error}</p>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
+            </div>
+          )}
 
           {/* Skeleton Loading */}
           {loading && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="mt-8"
-            >
+            <div className="mt-8 animate-fade-in">
               <Card>
                 <Skeleton className="h-6 w-1/3 mb-4" />
                 <div className="space-y-3">
@@ -255,87 +215,56 @@ export default function NarralinkPage() {
                   <Skeleton className="h-10 w-1/3" />
                 </div>
               </Card>
-            </motion.div>
+            </div>
           )}
 
           {/* Result */}
-          <AnimatePresence mode="wait">
-            {result && (
-              <motion.div
-                key="result"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="mt-8"
-              >
-                <Card>
-                  <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                    <span>📝</span> Generated Tweet
-                  </h2>
-                  <div className="bg-gray-700/50 p-4 rounded-lg mb-4 whitespace-pre-wrap text-gray-200">
-                    {result.tweet}
-                    {'\n\n'}
-                    <span className="text-purple-400">{result.hashtags.join(' ')}</span>
-                  </div>
-                  <div className="flex gap-3">
-                    <Button onClick={handleCopy} className="flex-1">
-                      📋 Copy Tweet
-                    </Button>
-                    <Button variant="secondary" onClick={handleSubmit} className="flex-1">
-                      🔄 Regenerate
-                    </Button>
-                  </div>
-                  {history.length > 1 && (
-                    <motion.button
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      onClick={handleUndo}
-                      className="mt-3 w-full py-2 text-sm text-gray-400 hover:text-white transition-colors"
-                    >
-                      ↩️ Undo (use previous result)
-                    </motion.button>
-                  )}
-                </Card>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {result && (
+            <div className="mt-8 animate-scale-in">
+              <Card>
+                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <span>📝</span> Generated Tweet
+                </h2>
+                <div className="bg-gray-700/50 p-4 rounded-lg mb-4 whitespace-pre-wrap text-gray-200">
+                  {result.tweet}
+                  {'\n\n'}
+                  <span className="text-purple-400">{result.hashtags.join(' ')}</span>
+                </div>
+                <div className="flex gap-3">
+                  <Button onClick={handleCopy} className="flex-1">
+                    📋 Copy Tweet
+                  </Button>
+                  <Button variant="secondary" onClick={handleSubmit} className="flex-1">
+                    🔄 Regenerate
+                  </Button>
+                </div>
+                {history.length > 1 && (
+                  <button
+                    onClick={handleUndo}
+                    className="mt-3 w-full py-2 text-sm text-gray-400 hover:text-white transition-colors"
+                  >
+                    ↩️ Undo (use previous result)
+                  </button>
+                )}
+              </Card>
+            </div>
+          )}
 
           {/* Features */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-12 grid grid-cols-3 gap-4"
-          >
+          <div className="mt-12 grid grid-cols-3 gap-4 animate-fade-in-delayed-3">
             <div className="text-center p-4">
-              <motion.div 
-                className="text-3xl mb-2"
-                whileHover={{ scale: 1.2 }}
-              >
-                ⚡
-              </motion.div>
+              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">⚡</div>
               <p className="text-sm text-gray-400">Fast Generation</p>
             </div>
             <div className="text-center p-4">
-              <motion.div 
-                className="text-3xl mb-2"
-                whileHover={{ scale: 1.2 }}
-              >
-                🎯
-              </motion.div>
+              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">🎯</div>
               <p className="text-sm text-gray-400">Natural Sounding</p>
             </div>
             <div className="text-center p-4">
-              <motion.div 
-                className="text-3xl mb-2"
-                whileHover={{ scale: 1.2 }}
-              >
-                💰
-              </motion.div>
+              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">💰</div>
               <p className="text-sm text-gray-400">Affiliate Ready</p>
             </div>
-          </motion.div>
+          </div>
         </div>
       </main>
 
