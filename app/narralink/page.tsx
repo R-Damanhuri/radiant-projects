@@ -7,6 +7,9 @@ import { Button, Input, Card, Skeleton } from './components/ui';
 import { ToastProvider, showToast, copyToClipboard } from './components/toast';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
+// NarralinkPage - AI-powered narrative link generator
+// Formerly Shopee2Tweet, now supports any link type
+
 export default function NarralinkPage() {
   const [formData, setFormData] = useState({
     shopeeLink: '',
