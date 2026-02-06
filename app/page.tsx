@@ -80,6 +80,30 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Social Proof Section */}
+      <section className="container mx-auto px-4 py-16">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-8">Trusted by Developers</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+              <div className="text-purple-400 text-4xl mb-3">🚀</div>
+              <p className="text-gray-300 italic mb-4">"Narralink helped me save hours creating social media content. Game changer!"</p>
+              <p className="text-sm text-gray-500">— Indonesian Developer</p>
+            </div>
+            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+              <div className="text-purple-400 text-4xl mb-3">⚡</div>
+              <p className="text-gray-300 italic mb-4">"The automation pipeline is incredibly smooth. Poetry workflow just works."</p>
+              <p className="text-sm text-gray-500">— Content Creator</p>
+            </div>
+            <div className="p-6 bg-gray-800/50 rounded-xl border border-gray-700">
+              <div className="text-purple-400 text-4xl mb-3">🎯</div>
+              <p className="text-gray-300 italic mb-4">"Finally, AI tools built with Indonesian context in mind. Great job!"</p>
+              <p className="text-sm text-gray-500">— Tech Enthusiast</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="container mx-auto px-4 py-10 text-center text-gray-500">
         <p>© 2026 Radiant Projects. All rights reserved.</p>

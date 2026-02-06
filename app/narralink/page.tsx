@@ -174,8 +174,30 @@ export default function Shopee2Tweet() {
 
           {/* Error */}
           {error && (
-            <div className="mt-4 p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-300">
-              ❌ {error}
+            <div className="mt-4 p-4 bg-red-900/30 border border-red-700/50 rounded-xl text-red-300 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-start gap-3">
+                <span className="text-xl">⚠️</span>
+                <div>
+                  <p className="font-medium mb-1">Generation Failed</p>
+                  <p className="text-sm text-red-400/80">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Skeleton Loading */}
+          {loading && (
+            <div className="mt-8 bg-gray-800/80 rounded-xl p-6 border border-gray-700 animate-pulse">
+              <div className="h-6 bg-gray-700 rounded w-1/3 mb-4"></div>
+              <div className="space-y-3">
+                <div className="h-4 bg-gray-700 rounded w-full"></div>
+                <div className="h-4 bg-gray-700 rounded w-5/6"></div>
+                <div className="h-4 bg-gray-700 rounded w-4/6"></div>
+              </div>
+              <div className="mt-4 flex gap-3">
+                <div className="h-10 bg-gray-700 rounded w-1/3"></div>
+                <div className="h-10 bg-gray-700 rounded w-1/3"></div>
+              </div>
             </div>
           )}
 
