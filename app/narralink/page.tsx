@@ -225,12 +225,18 @@ export default function NarralinkPage() {
                 <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
                   <span>📝</span> Generated Tweet
                 </h2>
-                <div className="bg-gray-700/50 p-4 rounded-lg mb-4 whitespace-pre-wrap text-gray-200">
+                <div className="bg-gray-700/50 p-4 rounded-lg mb-2 whitespace-pre-wrap text-gray-200">
                   {result.tweet}
                   {'\n\n'}
                   <span className="text-purple-400">{result.hashtags.join(' ')}</span>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center justify-between text-xs text-gray-400 px-1">
+                  <span>{result.tweet.length + result.hashtags.join(' ').length} / 280 karakter</span>
+                  <span className={result.tweet.length > 260 ? 'text-yellow-400' : 'text-green-400'}>
+                    {result.tweet.length > 260 ? 'M接近 limit!' : '✓ OK'}
+                  </span>
+                </div>
+                <div className="flex gap-3 mt-4">
                   <Button onClick={handleCopy} className="flex-1">
                     📋 Copy Tweet
                   </Button>
