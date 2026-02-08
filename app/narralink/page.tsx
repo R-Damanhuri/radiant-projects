@@ -1,120 +1,158 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Button, Input, Card, Skeleton } from '../components/ui';
+import { Button, Input, Card } from '../components/ui';
 
-// NarralinkPage - AI-powered narrative content generator
-// Converts links to engaging storytelling/curhat content
-
-interface ThreadItem {
-  text: string;
+interface Product {
+  name: string;
+  price: string;
+  description: string;
 }
 
-interface StoryResult {
-  thread: ThreadItem[];
+interface ScrapeResult {
+  success: boolean;
+  error?: string;
+  product: Product;
+  thread: string[];
   hashtags: string[];
-  style: string;
+  extractedData?: {
+    name: string;
+    price: string;
+    url: string;
+    title: string;
+    note: string;
+  };
+  note?: string;
 }
 
 export default function NarralinkPage() {
-  const [formData, setFormData] = useState({
-    shopeeLink: '',
-    productName: '',
-    style: 'casual',
-    promoCode: ''
-  });
-  const [result, setResult] = useState<StoryResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [history, setHistory] = useState<StoryResult[]>([]);
+  const [link, setLink] = useState('');
+  const [launchLoading, setLaunchLoading] = useState(false);
+  const [openLoading, setOpenLoading] = useState(false);
+  const [scrapeLoading, setScrapeLoading] = useState(false);
   const [toast, setToast] = useState<{message: string; type: 'success' | 'error'} | null>(null);
+  
+  // Results state
+  const [product, setProduct] = useState<Product | null>(null);
+  const [thread, setThread] = useState<string[]>([]);
+  const [hashtags, setHashtags] = useState<string[]>([]);
+  const [extractedData, setExtractedData] = useState<any>(null);
+  const [showResults, setShowResults] = useState(false);
 
-  // Show toast notification
-  const showToastMessage = (message: string, type: 'success' | 'error' = 'success') => {
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ message, type });
     setTimeout(() => setToast(null), 3000);
   };
 
-  const handleCopy = async () => {
-    if (result) {
-      const fullText = result.thread.map(t => t.text).join('\n\n') + '\n\n' + result.hashtags.join(' ');
-      try {
-        await navigator.clipboard.writeText(fullText);
-        showToastMessage('Copied to clipboard!', 'success');
-      } catch {
-        showToastMessage('Failed to copy', 'error');
+  const handleLaunchBrowser = async () => {
+    try {
+      setLaunchLoading(true);
+      showToast('Launching browser...', 'success');
+      
+      const res = await fetch('/narralink/api/launch-browser', { method: 'POST' });
+      const data = await res.json();
+      
+      if (data.success) {
+        showToast('Browser launched!', 'success');
+        window.open('http://vm-4-121-ubuntu.tailc895df.ts.net:8081/vnc.html', '_blank');
+      } else {
+        showToast('Failed: ' + data.error, 'error');
       }
+    } catch (error) {
+      showToast('Error launching browser', 'error');
+    } finally {
+      setLaunchLoading(false);
     }
   };
 
-  const handleCopyParagraph = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      showToastMessage('Paragraph copied!', 'success');
-    } catch {
-      showToastMessage('Failed to copy', 'error');
+  const handleOpenLink = async () => {
+    if (!link.trim()) {
+      showToast('Please enter a link first', 'error');
+      return;
     }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setResult(null);
-
+    
     try {
-      const res = await fetch('/.netlify/functions/shopee2tweet', {
+      setOpenLoading(true);
+      showToast('Opening link...', 'success');
+      
+      const res = await fetch('/narralink/api/open-link', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ url: link.trim() })
       });
-
+      
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to generate story');
+      
+      if (data.success) {
+        showToast('Link opened!', 'success');
+        window.open('http://vm-4-121-ubuntu.tailc895df.ts.net:8081/vnc.html', '_blank');
+      } else {
+        showToast('Failed: ' + data.error, 'error');
       }
-
-      setResult(data);
-      setHistory(prev => [...prev.slice(-4), data]);
-      showToastMessage('Story generated successfully!', 'success');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong');
-      showToastMessage('Generation failed', 'error');
+    } catch (error) {
+      showToast('Error opening link', 'error');
     } finally {
-      setLoading(false);
+      setOpenLoading(false);
     }
   };
 
-  const handleUndo = () => {
-    if (history.length > 0) {
-      const previous = history[history.length - 2] || null;
-      setResult(previous);
-      setHistory(prev => prev.slice(0, -1));
+  const handleScrapeAndGenerate = async () => {
+    if (!link.trim()) {
+      showToast('Please enter a link first', 'error');
+      return;
+    }
+    
+    try {
+      setScrapeLoading(true);
+      showToast('Extracting & generating...', 'success');
+      
+      const res = await fetch('/narralink/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link: link.trim() })
+      });
+      
+      const data: ScrapeResult = await res.json();
+      
+      if (data.success) {
+        setProduct(data.product);
+        setThread(data.thread);
+        setHashtags(data.hashtags);
+        setExtractedData(data.extractedData || {
+          name: data.product.name,
+          price: data.product.price,
+          url: link,
+          title: data.product.name,
+          note: data.note || 'Extracted from browser'
+        });
+        setShowResults(true);
+        showToast('Story generated!', 'success');
+      } else {
+        showToast('Failed: ' + data.error, 'error');
+      }
+    } catch (error) {
+      showToast('Error generating story', 'error');
+    } finally {
+      setScrapeLoading(false);
     }
   };
 
-  const getStyleEmoji = (style: string) => {
-    const emojis: Record<string, string> = {
-      casual: '💭',
-      excited: '🔥',
-      professional: '📋',
-      humor: '😂'
-    };
-    return emojis[style] || '📝';
-  };
-
-  const getTotalLength = () => {
-    if (!result) return 0;
-    return result.thread.reduce((acc, t) => acc + t.text.length, 0);
+  const handleCopyThread = async () => {
+    const fullText = thread.join('\n\n') + '\n\n' + hashtags.join(' ');
+    try {
+      await navigator.clipboard.writeText(fullText);
+      showToast('Copied to clipboard!', 'success');
+    } catch {
+      showToast('Failed to copy', 'error');
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Toast Notification */}
+      {/* Toast */}
       {toast && (
-        <div className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg animate-toast-in z-50 ${
+        <div className={`fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 ${
           toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
         }`}>
           {toast.type === 'success' ? '✅' : '⚠️'} {toast.message}
@@ -128,212 +166,158 @@ export default function NarralinkPage() {
             🚀 Radiant Projects
           </Link>
           <nav className="flex gap-4">
-            <Link href="/narralink" className="text-purple-400">
-              Narralink
-            </Link>
-            <Link href="/idntimes-poetry" className="hover:text-purple-400">
-              IDN Times Poetry
-            </Link>
+            <Link href="/narralink" className="text-purple-400">Narralink</Link>
+            <Link href="/idntimes-poetry" className="hover:text-purple-400">IDN Times Poetry</Link>
           </nav>
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main */}
       <main className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           {/* Hero */}
-          <div className="text-center mb-8 animate-fade-in">
+          <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               ✨ Narralink
             </h1>
-            <p className="text-gray-400 text-lg md:text-xl max-w-xl mx-auto">
-              Convert any link to natural, engaging storytelling content
+            <p className="text-gray-400 text-lg">
+              Open Shopee links & generate stories
             </p>
-            <div className="mt-4 flex justify-center gap-3 text-sm animate-fade-in-delayed">
-              <span className="px-3 py-1 bg-purple-900/50 text-purple-300 rounded-full">
-                🚀 Previously Shopee2Tweet
-              </span>
-            </div>
+          </div>
+
+          {/* Link Input */}
+          <Card className="mb-6">
+            <Input
+              label="🔗 Shopee Link"
+              icon="📎"
+              type="url"
+              placeholder="https://shopee.co.id/..."
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+            />
+          </Card>
+
+          {/* Actions */}
+          <Card className="mb-6 space-y-4">
+            <Button 
+              onClick={handleLaunchBrowser} 
+              loading={launchLoading}
+              className="w-full bg-green-600 hover:bg-green-500"
+            >
+              🌐 Launch Browser
+            </Button>
             
-            {/* Keyboard shortcuts hint */}
-            <div className="mt-4 flex justify-center gap-4 text-xs text-gray-500 animate-fade-in-delayed-2">
-              <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+Enter</kbd> Generate</span>
-              <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+C</kbd> Copy All</span>
-              <span>⌨️ <kbd className="px-2 py-1 bg-gray-700 rounded">Esc</kbd> Clear</span>
+            <div className="grid grid-cols-2 gap-4">
+              <Button 
+                onClick={handleOpenLink}
+                loading={openLoading}
+              >
+                🔗 Open Link
+              </Button>
+              
+              <Button 
+                onClick={handleScrapeAndGenerate}
+                loading={scrapeLoading}
+                className="bg-purple-600 hover:bg-purple-500"
+              >
+                ✨ Scrape & Generate
+              </Button>
             </div>
-          </div>
+          </Card>
 
-          {/* Input Form */}
-          <div className="animate-slide-up">
-            <Card className="space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <Input
-                  label="Link to Convert"
-                  icon="📎"
-                  type="url"
-                  required
-                  placeholder="https://shopee.co.id/... or any link"
-                  value={formData.shopeeLink}
-                  onChange={(e) => setFormData({...formData, shopeeLink: e.target.value})}
-                />
-
-                <Input
-                  label="Product/Content Name (optional)"
-                  icon="📝"
-                  type="text"
-                  placeholder="Kaos Polos Premium Cotton"
-                  value={formData.productName}
-                  onChange={(e) => setFormData({...formData, productName: e.target.value})}
-                />
-
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
-                    🎨 Writing Style
-                  </label>
-                  <select
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all appearance-none cursor-pointer"
-                    value={formData.style}
-                    onChange={(e) => setFormData({...formData, style: e.target.value})}
-                  >
-                    <option value="casual">Casual & Friendly 🗣️</option>
-                    <option value="excited">Excited & Enthusiastic 🎉</option>
-                    <option value="professional">Professional & Clean 💼</option>
-                    <option value="humor">Humorous & Witty 😄</option>
-                  </select>
-                </div>
-
-                <Input
-                  label="Promo Code (optional)"
-                  icon="🎫"
-                  type="text"
-                  placeholder="DISKON10"
-                  value={formData.promoCode}
-                  onChange={(e) => setFormData({...formData, promoCode: e.target.value})}
-                />
-
-                <Button type="submit" loading={loading} className="w-full">
-                  {loading ? 'Generating Story...' : '✨ Generate Story'}
-                </Button>
-              </form>
-            </Card>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <div className="mt-4 p-4 bg-red-900/30 border border-red-700/50 rounded-xl text-red-300 animate-fade-in">
-              <div className="flex items-start gap-3">
-                <span className="text-xl">⚠️</span>
-                <div>
-                  <p className="font-medium mb-1">Generation Failed</p>
-                  <p className="text-sm text-red-400/80">{error}</p>
-                </div>
-              </div>
+          {/* Instructions */}
+          <Card className="mb-6 bg-gray-800/30">
+            <div className="p-4 text-sm text-gray-400 space-y-2">
+              <p>1. Klik <strong>"Launch Browser"</strong> → Login & solve captcha di noVNC</p>
+              <p>2. Atau masukin link → Klik <strong>"Open Link"</strong></p>
+              <p>3. Setelah puzzle solved, klik <strong>"✨ Scrape & Generate"</strong></p>
+              <p className="text-yellow-400">
+                💡 Tips: Solve captcha dulu di noVNC sebelum scrape!
+              </p>
             </div>
-          )}
+          </Card>
 
-          {/* Skeleton Loading */}
-          {loading && (
-            <div className="mt-8 animate-fade-in space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <Skeleton className="h-6 w-1/4 mb-4" />
-                  <div className="space-y-3">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-4 w-4/6" />
+          {/* Results */}
+          {showResults && product && extractedData && (
+            <Card className="animate-fade-in mb-6">
+              <h2 className="text-xl font-bold mb-4">📦 Extracted from Browser</h2>
+              
+              {/* Raw Extracted Data */}
+              <div className="bg-gray-800/50 p-4 rounded-lg mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-purple-400 font-semibold mb-2">📌 Name:</p>
+                    <p className="text-white">{extractedData.name}</p>
                   </div>
-                  <div className="mt-4 flex gap-3">
-                    <Skeleton className="h-8 w-24" />
+                  <div>
+                    <p className="text-purple-400 font-semibold mb-2">💰 Price:</p>
+                    <p className="text-green-400 font-bold">{extractedData.price}</p>
                   </div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Result - Thread Format */}
-          {result && (
-            <div className="mt-8 animate-scale-in">
-              <Card>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-semibold flex items-center gap-2">
-                    <span>{getStyleEmoji(result.style)}</span> Your Story
-                  </h2>
-                  <span className="text-xs text-gray-400 bg-gray-700/50 px-2 py-1 rounded capitalize">
-                    {result.style} style
-                  </span>
+                  <div className="md:col-span-2">
+                    <p className="text-purple-400 font-semibold mb-2">🔗 URL (dari browser):</p>
+                    <p className="text-white text-sm break-all">{extractedData.url}</p>
+                  </div>
                 </div>
-
-                {/* Thread Content */}
-                <div className="space-y-4 mb-4">
-                  {result.thread.map((item, index) => (
-                    <div key={index} className="relative">
-                      <div className="bg-gray-700/50 p-4 rounded-lg text-gray-200 whitespace-pre-wrap">
-                        {item.text}
-                      </div>
-                      <button
-                        onClick={() => handleCopyParagraph(item.text)}
-                        className="absolute top-2 right-2 text-xs bg-gray-600 hover:bg-gray-500 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity"
-                        title="Copy paragraph"
-                      >
-                        📋
-                      </button>
+                
+                {/* Content Preview */}
+                {extractedData.contentPreview && (
+                  <div className="mt-4">
+                    <p className="text-purple-400 font-semibold mb-2">📝 Extracted Content Preview:</p>
+                    <div className="bg-gray-900/50 p-3 rounded-lg text-gray-300 text-sm whitespace-pre-wrap max-h-64 overflow-y-auto">
+                      {extractedData.contentPreview}
                     </div>
-                  ))}
-                </div>
-
-                {/* Hashtags */}
-                <div className="bg-gray-700/30 p-3 rounded-lg mb-4">
-                  <p className="text-purple-400 text-sm">{result.hashtags.join(' ')}</p>
-                </div>
-
-                {/* Stats */}
-                <div className="flex items-center justify-between text-xs text-gray-400 px-1 mb-4">
-                  <span>{result.thread.length} paragraphs</span>
-                  <span>{getTotalLength()} total characters</span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-3">
-                  <Button onClick={handleCopy} className="flex-1">
-                    📋 Copy All
-                  </Button>
-                  <Button variant="secondary" onClick={handleSubmit} className="flex-1">
-                    🔄 Regenerate
-                  </Button>
-                </div>
-                {history.length > 1 && (
-                  <button
-                    onClick={handleUndo}
-                    className="mt-3 w-full py-2 text-sm text-gray-400 hover:text-white transition-colors"
-                  >
-                    ↩️ Undo (use previous result)
-                  </button>
+                  </div>
                 )}
-              </Card>
-            </div>
+                
+                <p className="text-green-400 text-sm mt-3">✅ {extractedData.note}</p>
+              </div>
+            </Card>
           )}
 
-          {/* Features */}
-          <div className="mt-12 grid grid-cols-3 gap-4 animate-fade-in-delayed-3">
-            <div className="text-center p-4">
-              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">📖</div>
-              <p className="text-sm text-gray-400">Storytelling</p>
-            </div>
-            <div className="text-center p-4">
-              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">💭</div>
-              <p className="text-sm text-gray-400">Natural & Personal</p>
-            </div>
-            <div className="text-center p-4">
-              <div className="text-3xl mb-2 hover:scale-125 transition-transform duration-300">🎯</div>
-              <p className="text-sm text-gray-400">Thread Ready</p>
-            </div>
-          </div>
+          {/* Generated Story */}
+          {showResults && product && (
+            <Card className="animate-fade-in">
+              <h2 className="text-xl font-bold mb-4">✨ Generated Story</h2>
+              
+              {/* Thread */}
+              <div className="space-y-3 mb-4">
+                {thread.map((paragraph, i) => (
+                  <div key={i} className="bg-gray-800/30 p-3 rounded-lg text-gray-200 whitespace-pre-wrap">
+                    {paragraph}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Hashtags */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {hashtags.map((tag, i) => (
+                  <span key={i} className="px-3 py-1 bg-purple-600/30 rounded-full text-purple-300 text-sm">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              
+              {/* Actions */}
+              <div className="flex gap-3">
+                <Button onClick={handleCopyThread} className="flex-1">
+                  📋 Copy Thread
+                </Button>
+                <Button 
+                  onClick={handleScrapeAndGenerate}
+                  loading={scrapeLoading}
+                  className="flex-1 bg-purple-600 hover:bg-purple-500"
+                >
+                  🔄 Regenerate
+                </Button>
+              </div>
+            </Card>
+          )}
         </div>
       </main>
 
       {/* Footer */}
       <footer className="container mx-auto px-4 py-6 text-center text-gray-500">
-        <p>Powered by OpenClaw + Groq API + Next.js</p>
+        <p>Powered by OpenClaw + Next.js</p>
       </footer>
     </div>
   );
